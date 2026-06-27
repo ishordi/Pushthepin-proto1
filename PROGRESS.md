@@ -315,6 +315,34 @@
 
 ---
 
-## Phases 12–13
+## Phase 12 — Instrumentation surfacing and edge states ✅ DONE
 
-Not started. See IMPLEMENTATION_PHASES.md for full plan.
+**Status:** Complete. Browser-verified end-to-end in the production build (0 console errors).
+
+**What was built:**
+- `src/components/EventLogView.tsx` — a plain, inspectable view of the behaviour event log: newest-first list (time · name · payload), event count + session length (first→last event), clear button. Subscribes via `onLogChange`. Neutral/monospace utility styling so it reads the same in admin and the Phase 13 console.
+- `src/routes/admin/AdminPage.tsx` — the admin moderation surface (plain, not resident-styled). Two tabs: **Queue** (civic pins with status `submitted`) with Approve → route and Kill per report; **Event log** (renders EventLogView). Back link to the app. Approve fires a `tick` (tracker advances).
+- `src/components/SurveyPrompt.tsx` — the reusable mini-survey micro-prompt (PRS 7.8): one question, a few tap options, non-blocking, dismissible, "Thanks — noted." after answering. Logs `survey_shown` / `survey_answered` / `survey_dismissed`.
+- store: `approveCivicPin` (submitted → in_review → routed, assigns a mock `BMC-HW-2026-#####` ref, appends history) and `removePin` (drops the pin from `pins`, `ownPinIds`, and any collage; empties collages that fall to 0).
+- Create flow: the **first-ever post** now shows the survey moment on the done screen (`where: 'create_first_post'`), alongside the existing quiet "contributed to the record" copy.
+
+**Acceptance check result (browser-verified):**
+- ✅ Event log is inspectable and shows a realistic session (admin Event log tab; verified `app_open`, `create_*`, `survey_*` entries with payloads, session length, clear).
+- ✅ Admin approve and kill move pins correctly: approve advanced a streetlight report `submitted → in_review → routed` with ref `BMC-HW-2026-46928` and dropped the queue 2→1; kill removed the pin (and pruned it from its collage) and showed the empty state.
+- ✅ First-ever post fires the survey: `survey_shown` + `survey_answered` logged with `{where:'create_first_post', answer:'Easy'}`.
+- ✅ Every edge state renders calmly (PRS section 10), all built in earlier phases and re-confirmed here:
+  - Empty filter → VIPIN EmptyState (Phase 3).
+  - Location denied → cluster-centre fallback + gentle prompt (onboarding + Profile, Phase 10).
+  - Single-report collage → reads as a normal pin (`buildMapItems` only groups 2+).
+  - Dead-zone wait → honest tracker + VIPIN patient, never fake-resolved (Phase 5).
+  - Expired pin → dropped from the feed cleanly (`buildMapItems`), no broken cards.
+  - First-ever post → survey moment + quiet contribution copy (new this phase).
+- ✅ `npm run build` clean; 0 console errors.
+
+**Decision flagged:** The moderation queue holds **civic** pins awaiting review (status `submitted`) — civic is the only lifecycle type, so it's the only thing that meaningfully needs moderation. Non-civic pins post-and-appear per the locked decisions, so they don't enter the queue. Admin actions are tester/operator actions, not resident behaviour, so they are deliberately **not** written to the behaviour event log.
+
+---
+
+## Phase 13 — Test Console
+
+Not started. See IMPLEMENTATION_PHASES.md and PRS section 11 for the full spec.

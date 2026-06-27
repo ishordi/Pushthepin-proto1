@@ -221,6 +221,45 @@ export function confirmCivicPin(id: string): void {
   });
 }
 
+/* ── Admin moderation (Phase 12) — stands in for neighbour validation ── */
+
+/* Approve a submitted civic report: it advances through review and is routed to
+   BMC with a mock complaint reference (the lifecycle's "in review" → "routed"). */
+export function approveCivicPin(id: string): void {
+  const now = new Date().toISOString();
+  const ref = `BMC-HW-2026-${Math.floor(10000 + Math.random() * 89999)}`;
+  commit({
+    ..._state,
+    pins: _state.pins.map((p) => {
+      if (p.id !== id || p.type !== 'civic') return p;
+      const civic = p as CivicPin;
+      const reference = civic.mockComplaintRef ?? ref;
+      return {
+        ...civic,
+        status: 'routed' as CivicStatus,
+        mockComplaintRef: reference,
+        statusHistory: [
+          ...civic.statusHistory,
+          { status: 'in_review' as CivicStatus, at: now, note: 'Approved in moderation' },
+          { status: 'routed' as CivicStatus, at: now, note: `Routed to BMC · ${reference}` },
+        ],
+      } as CivicPin;
+    }),
+  });
+}
+
+/* Kill a pin: remove it from the feed and any group it sat in. */
+export function removePin(id: string): void {
+  commit({
+    ..._state,
+    pins: _state.pins.filter((p) => p.id !== id),
+    ownPinIds: _state.ownPinIds.filter((x) => x !== id),
+    collages: _state.collages
+      .map((c) => ({ ...c, pinIds: c.pinIds.filter((x) => x !== id) }))
+      .filter((c) => c.pinIds.length > 0),
+  });
+}
+
 export function addCollage(collage: Collage): void {
   const existing = _state.collages.findIndex((c) => c.groupId === collage.groupId);
   if (existing >= 0) {

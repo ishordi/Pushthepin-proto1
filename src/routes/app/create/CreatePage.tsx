@@ -10,9 +10,10 @@ import Textarea from '../../../components/Textarea';
 import PhotoUploadTile from '../../../components/PhotoUploadTile';
 import LocationConfirm from '../../../components/LocationConfirm';
 import Vipin from '../../../components/Vipin';
+import SurveyPrompt from '../../../components/SurveyPrompt';
 import { PIN_VISUALS, PinMarkerSvg } from '../../../components/pin/pinVisuals';
 
-import { createPin, findNearbyCivic, addCivicToGroup, getCollage } from '../../../data/store';
+import { createPin, findNearbyCivic, addCivicToGroup, getCollage, getState } from '../../../data/store';
 import { log } from '../../../lib/log';
 import { haptic } from '../../../lib/haptics';
 import { H_WEST_CLUSTER } from '../../../data/cluster';
@@ -116,6 +117,7 @@ export default function CreatePage() {
   const [photo, setPhoto] = useState<string | undefined>();
   const [geocode, setGeocode] = useState<Geocode>({ ...H_WEST_CLUSTER.center });
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const [firstPost, setFirstPost] = useState(false);
 
   // upvote-or-add (civic collage) state
   const [matchTarget, setMatchTarget] = useState<CivicPin | null>(null);
@@ -205,6 +207,7 @@ export default function CreatePage() {
   function finalizeCreate(pin: Pin) {
     createPin(pin);
     setCreatedId(pin.id);
+    setFirstPost(getState().ownPinIds.length === 1);
     log('create_completed', { type: pin.type });
     if (pin.type === 'civic') {
       log('civic_submitted', { id: pin.id });
@@ -220,6 +223,7 @@ export default function CreatePage() {
     if (!pendingPin || !matchTarget || pendingPin.type !== 'civic') return;
     addCivicToGroup(pendingPin, matchTarget.id);
     setCreatedId(pendingPin.id);
+    setFirstPost(getState().ownPinIds.length === 1);
     log(pendingPin.photo ? 'add_photo_chosen' : 'upvote_chosen', { target: matchTarget.id });
     log('create_completed', { type: 'civic' });
     log('civic_submitted', { id: pendingPin.id });
@@ -348,6 +352,7 @@ export default function CreatePage() {
   return (
     <DoneScreen
       type={type!}
+      firstPost={firstPost}
       onView={() => createdId && navigate(`/app/pin/${createdId}`)}
       onMap={() => navigate('/app/pulse')}
     />
@@ -461,7 +466,17 @@ function TypeOption({ type, onSelect }: { type: PinType; onSelect: () => void })
   );
 }
 
-function DoneScreen({ type, onView, onMap }: { type: PinType; onView: () => void; onMap: () => void }) {
+function DoneScreen({
+  type,
+  firstPost,
+  onView,
+  onMap,
+}: {
+  type: PinType;
+  firstPost: boolean;
+  onView: () => void;
+  onMap: () => void;
+}) {
   const reduce = useReducedMotion();
   const isCivicType = type === 'civic';
 
@@ -499,6 +514,17 @@ function DoneScreen({ type, onView, onMap }: { type: PinType; onView: () => void
           Back to the map
         </Button>
       </div>
+
+      {/* First-ever post: a quiet survey moment (PRS section 10) */}
+      {firstPost && (
+        <div className="w-full max-w-xs mt-2">
+          <SurveyPrompt
+            question="That was your first post. How did it feel?"
+            options={['Easy', 'A bit fiddly', 'Confusing']}
+            where="create_first_post"
+          />
+        </div>
+      )}
     </div>
   );
 }
