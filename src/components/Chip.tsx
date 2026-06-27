@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent } from 'react';
+import { haptic } from '../lib/haptics';
 
 export type PinType = 'civic' | 'event' | 'help' | 'sell' | 'buy' | 'service';
 
@@ -20,18 +21,26 @@ const typeActiveStyles: Record<PinType | 'all', string> = {
 };
 
 const Chip = forwardRef<HTMLButtonElement, ChipProps>(
-  ({ active = false, pinType = 'all', label, className = '', ...rest }, ref) => {
+  ({ active = false, pinType = 'all', label, className = '', onClick, ...rest }, ref) => {
+    // Chip-select beat: the chip fills (colour) with a slight scale, paired with
+    // a tick. Reduced-motion clamps the transform via the global CSS.
+    const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+      haptic('tick');
+      onClick?.(e);
+    };
     return (
       <button
         ref={ref}
         role="radio"
         aria-checked={active}
         aria-label={label}
+        onClick={handleClick}
         className={[
           'inline-flex items-center justify-center',
           'min-h-[36px] min-w-[44px] px-4',
           'rounded-pill text-sm font-medium',
-          'transition-colors duration-100',
+          'transition-[colors,transform] duration-100',
+          'active:scale-95',
           'whitespace-nowrap',
           active
             ? typeActiveStyles[pinType]

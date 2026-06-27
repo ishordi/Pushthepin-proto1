@@ -288,6 +288,33 @@
 
 ---
 
-## Phases 11–13
+## Phase 11 — Micro-interactions, haptics, illustration, polish ✅ DONE
+
+**Status:** Complete. Browser-verified in the production build (0 console errors across Pulse, collage, civic tracker).
+
+**What was built / wired (the DESIGN_SYSTEM section 8 catalogue, end to end):**
+- **Filter / category / duration chip select** — `Chip` now fires `haptic('tick')` and carries a slight tap-scale (`active:scale-95`, reduced-motion clamps it) on top of the colour fill. Centralised in the primitive, so every chip surface (Pulse filters, civic category, help duration) gets the beat.
+- **Create type select** — `tick` on `chooseType`; the option card already lifts/scales.
+- **Pin drop on submit** — spring drop of the marker on the done screen (existing), `confirm` (non-civic) / `success` (civic) haptic.
+- **Civic submit confirmed** — VIPIN (pleased) + `success` (existing).
+- **Tracker advances a step** — `CivicTracker` connectors now sweep their fill in (`scaleX` 0→1, staggered, reduced-motion instant) on top of the gentle active-node pulse.
+- **Resolution photo revealed** — cross-reveal spring + `success` (existing); the emotional peak.
+- **Cluster expands** — `tick` on leaflet `clusterclick` (bubble springs open, built-in).
+- **Collage opens** — `tick` on open + the stacked heads now **fan out** on mount (`FannedHeads` animates from stacked to fanned, reduced-motion instant).
+- **Neighbour confirms a fix** — green pulse on the now-active closed step + `confirm` (existing).
+- **Illustration set consolidated** — `EmptyState` now renders the shared `Vipin` component (hello/patient/pleased moods) instead of its own inline figure, with an optional `mood` prop. Single VIPIN source across onboarding, empty states, create, waiting, and WhatsApp.
+
+**Acceptance check result (verified):**
+- ✅ Every catalogue moment fires its motion and haptic (haptics via the capability-checked `haptic()`; motion via framer-motion).
+- ✅ Reduced-motion degrades cleanly — every motion component branches on `useReducedMotion`, and the global CSS clamps transition/animation durations. No state is conveyed by motion alone (always paired with colour/text).
+- ✅ No-vibrate degrades cleanly — `haptics.ts` no-ops when `navigator.vibrate` is absent (iOS Safari, desktop), with a `setHapticsForcedOff` hook for the Test Console.
+- ✅ Nothing showy — beats are short and calm; the resolution reveal remains the clear emotional peak.
+- ✅ `npm run build` clean; 0 console errors in the production build.
+
+**Note:** A generic `tick` for admin-driven tracker step advances lands in Phase 12 (the admin moderation actions that move a pin forward don't exist yet). The resolution and confirmation advances already carry their warmer haptics.
+
+---
+
+## Phases 12–13
 
 Not started. See IMPLEMENTATION_PHASES.md for full plan.

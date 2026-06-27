@@ -16,6 +16,7 @@ import type { MapItem } from './mapItems';
 
 import { getState } from '../../../data/store';
 import { log } from '../../../lib/log';
+import { haptic } from '../../../lib/haptics';
 import { H_WEST_CLUSTER } from '../../../data/cluster';
 import type { PinType } from '../../../types/pin';
 
@@ -53,6 +54,7 @@ export default function PulsePage() {
   const handleSelect = useCallback(
     (item: MapItem) => {
       if (item.kind === 'collage') {
+        haptic('tick'); // collage open beat
         log('collage_opened', { groupId: item.groupId });
         navigate(`/app/collage/${item.groupId}`);
       } else {

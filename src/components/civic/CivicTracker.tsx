@@ -64,13 +64,20 @@ export default function CivicTracker({ status, statusHistory, confirmations }: C
           const upcoming = i > currentIndex;
           return (
             <li key={step.key} className="flex flex-col items-center flex-1 min-w-0 relative">
-              {/* connector to previous node */}
+              {/* connector to previous node — the fill sweeps in on advance */}
               {i > 0 && (
-                <span
-                  className="absolute top-[11px] right-1/2 h-[2px] w-full"
-                  style={{ backgroundColor: i <= currentIndex ? fill : 'var(--color-line)' }}
-                  aria-hidden="true"
-                />
+                <span className="absolute top-[11px] right-1/2 h-[2px] w-full" aria-hidden="true">
+                  <span className="absolute inset-0" style={{ backgroundColor: 'var(--color-line)' }} />
+                  {i <= currentIndex && (
+                    <motion.span
+                      className="absolute inset-0 origin-left"
+                      style={{ backgroundColor: fill }}
+                      initial={reduce ? false : { scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={reduce ? { duration: 0 } : { duration: 0.4, ease: 'easeOut', delay: i * 0.08 }}
+                    />
+                  )}
+                </span>
               )}
               {/* node */}
               <span className="relative z-10 flex items-center justify-center" style={{ width: 24, height: 24 }}>

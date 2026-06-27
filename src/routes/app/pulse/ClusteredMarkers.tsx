@@ -10,6 +10,7 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import { createPinDivIcon, createCollageDivIcon, createClusterIcon } from '../../../components/pin/markerIcons';
+import { haptic } from '../../../lib/haptics';
 import type { MapItem } from './mapItems';
 
 interface Props {
@@ -46,6 +47,9 @@ export default function ClusteredMarkers({ items, onSelect }: Props) {
       marker.on('click', () => onSelect(item));
       group.addLayer(marker);
     });
+
+    // Cluster expand beat: leaflet springs the bubble open into its members.
+    group.on('clusterclick', () => haptic('tick'));
 
     map.addLayer(group);
     return () => {

@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, Clock } from 'lucide-react';
 import Button from '../../../components/Button';
 import EmptyState from '../../../components/EmptyState';
@@ -8,21 +9,26 @@ import { getCollage, getCollageMembers } from '../../../data/store';
 import { timeAgo, daysBetween } from '../../../lib/time';
 import { isImageSrc } from '../../../lib/photo';
 
-/* Fanned civic heads — the collage signature, several reports at one spot. */
+/* Fanned civic heads — the collage signature, several reports at one spot.
+   On open the stacked heads fan out (the catalogue's collage beat). */
 function FannedHeads({ count }: { count: number }) {
+  const reduce = useReducedMotion();
   const heads = Math.min(count, 3);
   const offsets = [-14, 0, 14];
   const rotations = [-12, 0, 12];
   return (
     <div className="relative h-14 w-24 mx-auto" aria-hidden="true">
       {Array.from({ length: heads }).map((_, i) => (
-        <div
+        <motion.div
           key={i}
           className="absolute left-1/2 top-0"
-          style={{ transform: `translateX(${offsets[i] - 20}px) rotate(${rotations[i]}deg)`, zIndex: i === 1 ? 3 : 1 }}
+          style={{ zIndex: i === 1 ? 3 : 1 }}
+          initial={reduce ? false : { x: -20, rotate: 0, opacity: 0 }}
+          animate={{ x: offsets[i] - 20, rotate: rotations[i], opacity: 1 }}
+          transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 20, delay: i * 0.06 }}
         >
           <PinMarkerSvg type="civic" size={40} />
-        </div>
+        </motion.div>
       ))}
     </div>
   );

@@ -122,6 +122,7 @@ export default function CreatePage() {
   const [pendingPin, setPendingPin] = useState<Pin | null>(null);
 
   function chooseType(t: PinType) {
+    haptic('tick'); // type-select beat
     setType(t);
     setStep('form');
     log('create_started', { type: t });
