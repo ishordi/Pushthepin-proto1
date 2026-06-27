@@ -3,7 +3,11 @@
 
 import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
-import * as L from 'leaflet';
+// Default import (not `import * as L`): leaflet.markercluster mutates the leaflet
+// module object at runtime to add markerClusterGroup. A `* as` namespace import
+// is immutable in the production (rolldown) bundle, so that mutation never shows
+// up and the map throws. The default export is the live, mutable leaflet object.
+import L from 'leaflet';
 import 'leaflet.markercluster';
 import { createPinDivIcon, createCollageDivIcon, createClusterIcon } from '../../../components/pin/markerIcons';
 import type { MapItem } from './mapItems';

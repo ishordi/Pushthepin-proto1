@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+import { getState } from './data/store';
 import OnboardingPage from './routes/onboarding/OnboardingPage';
 import AppShell from './routes/app/AppShell';
 import PulsePage from './routes/app/pulse/PulsePage';
@@ -23,8 +24,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Root redirect */}
-        <Route path="/" element={<Navigate to="/app/pulse" replace />} />
+        {/* Root redirect — first-run users go through onboarding, returning
+            users land in Pulse (PRS section 6 IA). */}
+        <Route
+          path="/"
+          element={
+            <Navigate to={getState().onboardingDone ? '/app/pulse' : '/onboarding'} replace />
+          }
+        />
 
         {/* Onboarding */}
         <Route path="/onboarding" element={<OnboardingPage />} />

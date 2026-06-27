@@ -4,8 +4,10 @@ import './index.css';
 import App from './App.tsx';
 import { log } from './lib/log';
 import { mountGrain } from './styles/grain';
+import { applyPrefsFromState } from './lib/prefs';
 
 mountGrain();
+applyPrefsFromState();
 log('app_open');
 
 createRoot(document.getElementById('root')!).render(

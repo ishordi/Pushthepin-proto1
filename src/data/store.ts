@@ -18,6 +18,14 @@ import {
 
 const STORAGE_KEY = 'ptp_v1_state';
 
+/** Resident-facing settings (Profile, Phase 10). The text-size control scales
+    the whole interface from the 16px base; notifications are mocked. */
+export interface AppPrefs {
+  textSize: 'normal' | 'large';
+  notifyCivicUpdates: boolean;
+  notifyNearby: boolean;
+}
+
 export interface PTPState {
   pins: Pin[];
   collages: Collage[];
@@ -33,6 +41,11 @@ export interface PTPState {
   /** mock business sign-in (business name) — persists so business sub-pages
       and the Test Console can be reached directly. */
   businessSession?: string;
+  /** resident settings (Phase 10). */
+  prefs: AppPrefs;
+  /** whether precise location was granted in onboarding; undefined = not asked
+      yet, false = denied and falling back to the cluster centre. */
+  locationGranted?: boolean;
 }
 
 function freshState(): PTPState {
@@ -45,6 +58,7 @@ function freshState(): PTPState {
     eventLog: [],
     onboardingDone: false,
     ownPinIds: [],
+    prefs: { textSize: 'normal', notifyCivicUpdates: true, notifyNearby: true },
   };
 }
 
@@ -81,6 +95,9 @@ export function saveState(state: PTPState): void {
 export function resetState(): PTPState {
   const state = freshState();
   saveState(state);
+  // Keep the in-memory singleton in sync so callers that don't reload (Profile
+  // reset, Test Console) see clean state immediately.
+  _state = state;
   return state;
 }
 
@@ -332,6 +349,16 @@ export function addBuildingPost(post: BuildingPost): void {
 
 export function markOnboardingDone(): void {
   commit({ ..._state, onboardingDone: true });
+}
+
+export function setLocationGranted(granted: boolean): void {
+  commit({ ..._state, locationGranted: granted });
+}
+
+/* ── Settings / preferences (Phase 10) ── */
+
+export function setPrefs(partial: Partial<AppPrefs>): void {
+  commit({ ..._state, prefs: { ..._state.prefs, ...partial } });
 }
 
 /* ── Event log ── */

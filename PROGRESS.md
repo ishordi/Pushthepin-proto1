@@ -266,6 +266,28 @@
 
 ---
 
-## Phases 10–13
+## Phase 10 — Onboarding, profile, settings, accessibility pass ✅ DONE
+
+**Status:** Complete. Browser-verified end-to-end in the **production build** (vite preview + Playwright).
+
+**What was built:**
+- `src/routes/onboarding/OnboardingPage.tsx` — the way in, a 5-step focused flow with a clear back path and progress dots, framer-motion step transitions (reduced-motion aware): welcome + VIPIN → phone identity (any number) → mock OTP (any code, honest "always succeeds in this prototype" copy) → **location ladder** (precise via `navigator.geolocation`, or "Not now"; on grant → in-cluster check, on deny/skip/unsupported → calm fallback to the cluster centre, never a dead-end) → anonymity explainer ("you're just a neighbour… 'a neighbour on Waroda Road'") → `markOnboardingDone` + land in Pulse. Logs `onboarding_step_reached` per step, `location_granted`/`location_denied`, `onboarding_completed`.
+- `src/routes/app/profile/ProfilePage.tsx` — anonymous self view: identity card ("You appear as a neighbour. Your name is never shown."), **your own pins** (from `ownPinIds`, with status via PinCard, empty state when none), Location setting (shows precise-on vs cluster-centre fallback + "Turn on precise location"), mocked Notifications (two `role="switch"` toggles), the **text-size control** (Normal/Large segmented, `aria-pressed`) that scales the whole interface live, and the prototype **data reset** (inline confirm → `resetState` + reload to `/`).
+- `src/lib/prefs.ts` — `applyTextSize` (sets `html[data-text-size]`, scaling the whole app from the 16px base) + `applyPrefsFromState`, called once at startup in `main.tsx`.
+- store: added `AppPrefs` + `prefs` and `locationGranted` to `PTPState` (with fresh defaults, schema-forward via the existing merge in `loadState`); `setPrefs`, `setLocationGranted`. **Fixed `resetState` to also update the in-memory `_state` singleton** (it only wrote storage before — a latent bug that would have bitten the Test Console).
+- `src/App.tsx` — root `/` now gates on `onboardingDone` (→ `/onboarding` for first-run, `/app/pulse` for returning), per PRS section 6 IA.
+
+**Acceptance check result (production-build, browser-verified):**
+- ✅ Onboarding completes, including a denied/skipped-location path that still works (calm cluster-centre fallback, Continue enabled). All steps + `onboarding_completed` + `location_denied` logged; `onboardingDone:true`, `locationGranted:false` persisted.
+- ✅ Text-size control scales the whole app live: `data-text-size="large"`, root font-size 16px→20px, pref persisted.
+- ✅ Reduced-motion honoured (onboarding transitions use `useReducedMotion`; global CSS clamps the rest).
+- ✅ Keyboard/screen-reader pass: labelled controls and a sensible order — `switch` roles with names, `group`/`aria-pressed` on text size, back button labelled, every tap target ≥44px.
+- ✅ `npm run build` clean; **0 console errors** on onboarding, Profile, and Pulse in the production build.
+
+**⚠️ FLAGGED — Phase 3 production-only bug found and fixed during this phase:** `src/routes/app/pulse/ClusteredMarkers.tsx` used `import * as L from 'leaflet'`. The `leaflet.markercluster` plugin mutates the leaflet module object at runtime to add `markerClusterGroup`, but a `* as` namespace import is **immutable in the production (rolldown) bundle**, so the map threw `markerClusterGroup is not a function` and the home surface broke in any production build. Phase 3 was verified in dev (where esbuild interop hides this), so it was never caught. Changed to a default import (`import L from 'leaflet'`) — the live, mutable leaflet object. Confirmed: dev = clean before/after; prod = broken before, 9 markers/clusters + 0 errors after. This is an earlier-phase fix surfaced and documented, not silently reworked.
+
+---
+
+## Phases 11–13
 
 Not started. See IMPLEMENTATION_PHASES.md for full plan.

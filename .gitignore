@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Stray nested git inits — local clutter, not part of the project
+/PTP_Proto1/
+/Pushthepin-proto1/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
