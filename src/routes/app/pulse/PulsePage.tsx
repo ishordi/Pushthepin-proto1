@@ -15,8 +15,10 @@ import { buildMapItems, sortNewestFirst } from './mapItems';
 import type { MapItem } from './mapItems';
 
 import { getState } from '../../../data/store';
+import { getOverrides } from '../../../lib/overrides';
 import { log } from '../../../lib/log';
 import { haptic } from '../../../lib/haptics';
+import { isCivic } from '../../../types/pin';
 import { H_WEST_CLUSTER } from '../../../data/cluster';
 import type { PinType } from '../../../types/pin';
 
@@ -32,14 +34,25 @@ const FILTER_LABELS: Record<Filter, string> = {
   service: 'Service',
 };
 
+const TILE_URLS: Record<string, string> = {
+  positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+};
+
 export default function PulsePage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<Filter>('all');
+  const overrides = getOverrides();
+  const [filter, setFilter] = useState<Filter>(overrides.feedDefaultFilter);
   const [view, setView] = useState<'map' | 'list'>('map');
 
   const { pins, collages } = getState();
+  // Test Console: business posts can be hidden from the feed.
+  const visiblePins = useMemo(
+    () => (overrides.businessPosts ? pins : pins.filter((p) => isCivic(p) || !p.isBusiness)),
+    [pins, overrides.businessPosts],
+  );
 
-  const allItems = useMemo(() => buildMapItems(pins, collages), [pins, collages]);
+  const allItems = useMemo(() => buildMapItems(visiblePins, collages), [visiblePins, collages]);
   const filteredItems = useMemo(
     () => (filter === 'all' ? allItems : allItems.filter((i) => i.type === filter)),
     [allItems, filter],
@@ -109,7 +122,7 @@ export default function PulsePage() {
           attributionControl
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            url={TILE_URLS[overrides.mapStyle] ?? TILE_URLS.positron}
             attribution='&copy; OpenStreetMap &copy; CARTO'
             maxZoom={20}
           />

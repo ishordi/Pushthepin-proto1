@@ -343,6 +343,28 @@
 
 ---
 
-## Phase 13 — Test Console
+## Phase 13 — Test Console ✅ DONE
 
-Not started. See IMPLEMENTATION_PHASES.md and PRS section 11 for the full spec.
+**Status:** Complete. Browser-verified end-to-end in the production build (0 console errors). **This is the final phase — the prototype is feature-complete (Phases 0–13).**
+
+**What was built:**
+- `src/routes/console/ConsolePage.tsx` — the hidden Test Console: a full-height, deliberately off-brand overlay (dark, monospace, flat — DESIGN_SYSTEM section 11) with every PRS section 11 control section: **Navigate** (every IA surface), **Scenarios** (6 presets), **Civic lifecycle** (pick a civic pin → force status, elapsed days, confirmations, attach/clear resolution photo), **Data lenses** (feed density empty/sparse/dense/collage, per-type presence toggles, expire/un-expire non-civic), **Persona lens** (Aamir/Priya/elder/Royston), **Accessibility overrides** (reduced motion, text size, haptics off, high contrast), **Surface toggles** (grain, nav, business posts, map style), **Time control** (clock offset ±days), **Instrumentation** (live EventLogView + export JSON), **Reset** (hard reseed). Drives the store/overrides only — no new product behaviour.
+- `src/lib/overrides.ts` — the tester lens layer (own localStorage key, pub-sub, document-level application for motion/contrast/grain/haptics, plus the global clock offset). Applied at startup in `main.tsx`.
+- `src/lib/scenario.ts` — scenario presets, the `forceCivic` lifecycle driver, and data-lens drivers (`setDensity`, `toggleType`, `setNonCivicExpiry`), the persona set — all calling through `store.ts`.
+- `src/components/ConsoleTrigger.tsx` — hidden access: triple-tap top-right corner or Ctrl/Cmd+Shift+K; remembers the return path. Mounted globally in `App`.
+- `lib/time.ts` — all "now" reads now route through `getNow()` (Date.now + clock offset), so Time control ages pins / expires events / advances the dead-zone wait without waiting real days.
+- Wiring for live lenses: `App` wraps routes in framer-motion `MotionConfig` (reduced-motion override), `AppShell` honours the nav toggle, `PulsePage` honours business-post visibility, map style, and the persona feed-default filter. `index.css` carries the forced-reduced-motion, high-contrast, and grain-off rules.
+- store: `setPrefs` reused; existing `forceSetState`, `resetState`, `setHapticsForcedOff` reused.
+
+**Acceptance check result (browser-verified):**
+- ✅ Every control section drives the running prototype (all 10 render; representative controls in each exercised).
+- ✅ Scenario presets set their known states — Ghost town reduced the feed to 2 pins and landed on Pulse.
+- ✅ A civic pin can be forced to any status with custom elapsed time and confirmations — civic-006 → `closed`, 5 confirmations, full 6-entry history, ref preserved.
+- ✅ Persona and accessibility lenses apply live and persist across navigation — high contrast (`data-contrast=high`), forced reduced motion (`data-reduced-motion=on` + MotionConfig), grain off (`.grain` display:none), text size all verified live; they carried into the resident UI after navigating.
+- ✅ Time control offsets the global clock (+7d verified; `getNow()` ages everything).
+- ✅ Event log viewable and exportable (EventLogView embedded; export-JSON downloads the session).
+- ✅ Reset returns clean seeded state — 15 seed pins restored, civic-006 back to `waiting`, all overrides cleared.
+- ✅ Console is unreachable from any resident navigation — separate `/console` route + hidden trigger only; keyboard combo opens it and Close returns the tester to where they were (`/app/gather` round-trip verified).
+- ✅ `npm run build` clean; 0 console errors.
+
+**Note:** The Phase 1 `/kitchen-sink` route remains (a harmless dev-only acceptance surface, not in any navigation). Remove before a real release alongside the console, per CLAUDE.md.

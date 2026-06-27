@@ -1,6 +1,10 @@
+import { useSyncExternalStore } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 
 import { getState } from './data/store';
+import { subscribeOverrides, getOverrides } from './lib/overrides';
+import ConsoleTrigger from './components/ConsoleTrigger';
 import OnboardingPage from './routes/onboarding/OnboardingPage';
 import AppShell from './routes/app/AppShell';
 import PulsePage from './routes/app/pulse/PulsePage';
@@ -20,10 +24,16 @@ import AdminPage from './routes/admin/AdminPage';
 import ConsolePage from './routes/console/ConsolePage';
 import KitchenSinkPage from './routes/kitchen-sink/KitchenSinkPage';
 
+const RM_MAP = { on: 'always', off: 'never', system: 'user' } as const;
+
 export default function App() {
+  const reducedMotion = useSyncExternalStore(subscribeOverrides, () => getOverrides().reducedMotion);
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <MotionConfig reducedMotion={RM_MAP[reducedMotion]}>
+      <BrowserRouter>
+        <ConsoleTrigger />
+        <Routes>
         {/* Root redirect — first-run users go through onboarding, returning
             users land in Pulse (PRS section 6 IA). */}
         <Route
@@ -69,7 +79,8 @@ export default function App() {
 
         {/* Temporary kitchen sink — Phase 1 acceptance check only */}
         <Route path="/kitchen-sink" element={<KitchenSinkPage />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </MotionConfig>
   );
 }

@@ -61,6 +61,30 @@ body {
   }
 }
 
+/* Test Console: force reduced motion independent of the device setting */
+html[data-reduced-motion="on"] *,
+html[data-reduced-motion="on"] *::before,
+html[data-reduced-motion="on"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Test Console: high-contrast lens — darker ink, stronger hairlines */
+html[data-contrast="high"] {
+  --color-ink: #000000;
+  --color-ink-soft: #1f1b15;
+  --color-ink-faint: #3a352d;
+  --color-line: #211d17;
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+}
+
+/* Test Console: grain off */
+html[data-grain="off"] .grain {
+  display: none;
+}
+
 /* ── Tabular figures for tracker and counts ── */
 .tabular-nums {
   font-variant-numeric: tabular-nums;

@@ -1,7 +1,15 @@
-/* Time helpers — elapsed time shown honestly, tabular figures in the UI. */
+/* Time helpers — elapsed time shown honestly, tabular figures in the UI.
+   All "now" reads route through getNow() so the Test Console's clock offset can
+   fast-forward the civic timeline without waiting real days (Phase 13). */
+
+import { getClockOffset } from './overrides';
+
+export function getNow(): number {
+  return Date.now() + getClockOffset();
+}
 
 export function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const diff = getNow() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
@@ -14,7 +22,7 @@ export function timeAgo(iso: string): string {
 }
 
 export function timeUntil(iso: string): string {
-  const diff = new Date(iso).getTime() - Date.now();
+  const diff = new Date(iso).getTime() - getNow();
   if (diff <= 0) return 'expired';
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `${mins}m left`;
@@ -30,11 +38,11 @@ export function daysBetween(aIso: string, bIso: string): number {
 }
 
 export function daysSince(iso: string): number {
-  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  return Math.floor((getNow() - new Date(iso).getTime()) / 86400000);
 }
 
 export function isExpired(expiresAt: string): boolean {
-  return new Date(expiresAt).getTime() < Date.now();
+  return new Date(expiresAt).getTime() < getNow();
 }
 
 export function formatWhen(iso: string): string {

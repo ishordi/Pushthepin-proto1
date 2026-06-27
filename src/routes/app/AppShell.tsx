@@ -1,5 +1,7 @@
+import { useSyncExternalStore } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import FloatingNav from '../../components/FloatingNav';
+import { subscribeOverrides, getOverrides } from '../../lib/overrides';
 
 /* The floating bottom nav appears on the browsing destinations (Pulse, Gather,
    Building, Profile) and gives way on focused tasks (create, pin detail,
@@ -14,7 +16,8 @@ function isFocusedTask(pathname: string): boolean {
 
 export default function AppShell() {
   const { pathname } = useLocation();
-  const showNav = !isFocusedTask(pathname);
+  const navOverride = useSyncExternalStore(subscribeOverrides, () => getOverrides().nav);
+  const showNav = !isFocusedTask(pathname) && navOverride;
 
   return (
     <div className="min-h-[100svh] flex flex-col bg-paper">
