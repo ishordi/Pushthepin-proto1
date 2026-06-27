@@ -1,0 +1,53 @@
+/*
+  Push The Pin — Design tokens
+  All values from DESIGN_SYSTEM.md. No hardcoded values in components — pull from here.
+*/
+
+@theme {
+  /* ── Colours ── */
+  --color-paper: #F4EEE3;
+  --color-paper-raised: #FBF7EF;
+  --color-ink: #211D17;
+  --color-ink-soft: #5A554C;
+  --color-ink-faint: #8E887C;
+  --color-cobalt: #2B43E6;
+  --color-cobalt-deep: #1E31B0;
+  --color-coral: #F4633A;
+  --color-green: #2E9E6B;
+  --color-amber: #E8A93C;
+  --color-line: #E3DCCE;
+
+  /* Pin type colours */
+  --color-pin-civic: #2B43E6;
+  --color-pin-event: #F4633A;
+  --color-pin-help: #E8A93C;
+  --color-pin-sell: #2E9E6B;
+  --color-pin-buy: #2B9EA6;
+  --color-pin-service: #7A5AD8;
+
+  /* ── Border radius ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* ── Elevation / shadows ── */
+  --shadow-elevation-1: 0 1px 3px 0 rgba(33, 29, 23, 0.07), 0 2px 8px 0 rgba(33, 29, 23, 0.05);
+  --shadow-elevation-2: 0 4px 16px 0 rgba(33, 29, 23, 0.12), 0 1px 4px 0 rgba(33, 29, 23, 0.08);
+
+  /* ── Typography ── */
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesque', system-ui, sans-serif;
+
+  /* ── Spacing scale (4px base) ── */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+}

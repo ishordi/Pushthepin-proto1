@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+/* ── Base resets ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+/* Text-size scale control — set via data-text-size on <html> */
+html[data-text-size="large"] {
+  font-size: 20px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100svh;
+  width: 100%;
+}
+
+/* ── Focus ring — cobalt, 2px, 2px offset, on every interactive element ── */
+:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Paper grain overlay ── */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Tabular figures for tracker and counts ── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbar on the horizontal filter row */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* WhatsApp typing indicator dots */
+@keyframes ptp-typing {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+
+/* ── Map / Leaflet ── */
+.leaflet-container {
+  background: var(--color-paper);
+  font-family: var(--font-body);
+}
+
+/* Warm, low-saturation nudge so the coloured pins are the content */
+.leaflet-tile-pane {
+  filter: sepia(0.10) saturate(0.92) brightness(1.03);
+}
+
+/* Custom markers — soft shadow so pins feel pushed in */
+.ptp-marker {
+  filter: drop-shadow(0 2px 2px rgba(33, 29, 23, 0.28));
+  background: transparent;
+  border: none;
+}
+
+/* Cluster bubble — soft rounded-square blob with a count */
+.ptp-cluster-wrap {
+  background: transparent;
+}
+.ptp-cluster {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  color: var(--color-ink);
+  background: color-mix(in srgb, var(--cluster-c) 22%, var(--color-paper-raised));
+  border: 1.5px solid color-mix(in srgb, var(--cluster-c) 55%, transparent);
+  box-shadow: var(--shadow-elevation-1);
+}
+.ptp-cluster-mixed {
+  background: var(--color-paper-raised);
+  border: 1.5px solid var(--color-ink-faint);
+  color: var(--color-ink);
+}
